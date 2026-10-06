@@ -1,0 +1,26 @@
+[package]
+name = "herdr-db-drivers"
+description = "PostgreSQL and MySQL adapters of Herdr DB"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[dependencies]
+herdr-db-core.workspace = true
+chrono.workspace = true
+futures-util.workspace = true
+mysql_async.workspace = true
+rustls.workspace = true
+secrecy.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+tokio-postgres.workspace = true
+tokio-postgres-rustls.workspace = true
+tracing.workspace = true
+webpki-roots.workspace = true
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }

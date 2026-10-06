@@ -1,0 +1,22 @@
+[workspace]
+members = ["cargo:."]
+
+# Release builds: four static binaries and their SHA-256, published on every
+# vX.Y.Z tag. No installers: Herdr installs through scripts/fetch-binary.sh.
+[dist]
+cargo-dist-version = "0.32.0"
+ci = "github"
+installers = []
+targets = [
+  "aarch64-apple-darwin",
+  "x86_64-apple-darwin",
+  "x86_64-unknown-linux-musl",
+  "aarch64-unknown-linux-musl",
+]
+unix-archive = ".tar.gz"
+checksum = "sha256"
+# Pull requests run ci.yml; dist only acts on tags.
+pr-run-mode = "skip"
+install-updater = false
+# Refuses a tag whose version differs from Cargo.toml or herdr-plugin.toml.
+plan-jobs = ["./check-version"]

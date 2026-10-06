@@ -1,0 +1,54 @@
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.89"
+license = "MIT"
+repository = "https://github.com/samirsid-dev/herdr-db"
+authors = ["Samir Sid"]
+
+[workspace.dependencies]
+herdr-db-core = { path = "crates/herdr-db-core" }
+herdr-db-drivers = { path = "crates/herdr-db-drivers" }
+herdr-db-store = { path = "crates/herdr-db-store" }
+
+anyhow = "1"
+chrono = { version = "0.4", default-features = false, features = ["std", "clock", "serde"] }
+clap = { version = "4", features = ["derive"] }
+crossterm = { version = "0.29", features = ["event-stream"] }
+futures-util = { version = "0.3", default-features = false, features = ["std"] }
+keyring = "4"
+libc = "0.2"
+mysql_async = { version = "0.37", default-features = false, features = ["default-rustls-ring"] }
+ratatui = "0.30"
+rusqlite = { version = "0.40", features = ["bundled"] }
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12", "logging"] }
+secrecy = "0.10"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sqlparser = "0.63"
+thiserror = "2"
+tokio = { version = "1", features = ["rt", "rt-multi-thread", "macros", "net", "time", "sync", "process", "io-util", "signal", "fs"] }
+tokio-postgres = "0.7"
+tokio-postgres-rustls = "0.14"
+toml = "1"
+toml_edit = "0.25"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", default-features = false, features = ["fmt", "std", "env-filter", "ansi"] }
+unicode-width = "0.2"
+webpki-roots = "1"
+
+insta = "1"
+tempfile = "3"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true
+
+# The profile that 'dist' will build with
+[profile.dist]
+inherits = "release"

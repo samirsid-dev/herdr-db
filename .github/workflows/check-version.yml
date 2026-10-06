@@ -1,0 +1,26 @@
+# Called by the release workflow before anything is built: the tag, the
+# workspace version and the plugin manifest version must match.
+name: check-version
+
+on:
+  workflow_call:
+    inputs:
+      plan:
+        required: true
+        type: string
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compare versions
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          cargo=$(sed -n '/^\[workspace.package\]/,/^\[/s/^version *= *"\(.*\)"/\1/p' Cargo.toml)
+          manifest=$(sed -n 's/^version *= *"\(.*\)"/\1/p' herdr-plugin.toml | head -n 1)
+          echo "tag=$tag Cargo.toml=$cargo herdr-plugin.toml=$manifest"
+          if [ "${GITHUB_REF_TYPE}" = "tag" ] && { [ "$tag" != "$cargo" ] || [ "$tag" != "$manifest" ]; }; then
+            echo "::error::versions différentes : tag $tag, Cargo.toml $cargo, herdr-plugin.toml $manifest"
+            exit 1
+          fi

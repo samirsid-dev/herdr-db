@@ -1,0 +1,18 @@
+---
+source: crates/herdr-db/src/ui/tree.rs
+expression: terminal.backend()
+---
+" Database                                   "
+"v + Hellocare                               "
+"  v @ db_prod              PostgreSQL · prod"
+"    v # public                  il y a 2 min"
+"      v  tables                            2"
+"        > T orders                     ~1.2k"
+"        v T users                      ~1.2k"
+"          v  colonnes                      2"
+"              PK id                  integer"
+"                 email               integer"
+"          >  clés                          1"
+"      >  vues                              1"
+"> @ local                 PostgreSQL · local"
+"                                      ? aide"

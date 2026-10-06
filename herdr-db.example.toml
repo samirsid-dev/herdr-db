@@ -1,0 +1,44 @@
+# herdr-db.toml — team file, committed at the root of the repository.
+# Never put a secret here: passwords live in the OS keyring or come from
+# `password_command`. Personal overrides go in the plugin config directory
+# (`herdr plugin config-dir herdr-db`)/config.toml, same format, field by field.
+
+[[folders]]
+name = "Hellocare"
+
+[[sources]]
+id = "db_prod"
+folder = "Hellocare"
+engine = "postgres"
+environment = "production"        # local, development, staging, production
+host = "localhost"
+port = 15432
+database = "app"
+schemas = ["public"]
+read_only = true                   # default for production
+# user = "prenom_ro"               # per person, usually in the personal file
+pre_connect = ["kubectl", "port-forward", "svc/postgres", "15432:5432", "-n", "prod"]
+password_command = ["infisical", "secrets", "get", "DB_PASSWORD", "--env=prod", "--path=/db", "--plain"]
+# statement_timeout = "30s"        # default on staging and production
+# tls = "prefer"                   # disable, prefer, require, verify-full
+
+[[sources]]
+id = "hc-platform"
+folder = "Hellocare"
+engine = "mysql"
+environment = "development"
+host = "localhost"
+port = 3306
+database = "platform"
+
+# Personal settings (personal file only, usually):
+# [settings]
+# page_size = 200
+# console_max_rows = 1000
+# grid_placement = "split"         # or "tab"
+# icons = "auto"                   # auto, nerd-font, ascii
+# check_updates = true
+#
+# [keys]
+# edit_data = "e"
+# execute = "ctrl+r, f5"

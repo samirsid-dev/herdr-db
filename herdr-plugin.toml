@@ -1,0 +1,73 @@
+# Herdr DB: database explorer for Herdr (PostgreSQL, MySQL).
+# One binary, bin/herdr-db, serves every pane: Herdr runs one subcommand per
+# entrypoint. The build step downloads a prebuilt binary from the GitHub
+# release matching `version`, so installing needs no Rust toolchain.
+
+id = "herdr-db"
+name = "Herdr DB"
+version = "0.1.0"
+min_herdr_version = "0.9.3"
+description = "Database explorer for Herdr: tree, read-only data grid, DDL, Quick Documentation and SQL console for PostgreSQL and MySQL."
+platforms = ["linux", "macos"]
+
+[[build]]
+command = ["/bin/sh", "scripts/fetch-binary.sh"]
+
+# Purges orphan requests, dead tunnel leases and stale tree registrations
+# when the Herdr server starts.
+[[startup]]
+command = ["./bin/herdr-db", "startup"]
+
+[[panes]]
+id = "tree"
+title = "Database"
+placement = "split"
+command = ["./bin/herdr-db", "tree"]
+
+[[panes]]
+id = "grid"
+title = "Data"
+placement = "split"
+command = ["./bin/herdr-db", "grid"]
+
+[[panes]]
+id = "console"
+title = "SQL Console"
+placement = "split"
+command = ["./bin/herdr-db", "console"]
+
+[[panes]]
+id = "ddl"
+title = "DDL"
+placement = "tab"
+command = ["./bin/herdr-db", "ddl"]
+
+[[panes]]
+id = "quickdoc"
+title = "Quick Documentation"
+placement = "popup"
+width = "70%"
+height = "60%"
+command = ["./bin/herdr-db", "quickdoc"]
+
+[[panes]]
+id = "update"
+title = "Mettre à jour Herdr DB"
+placement = "popup"
+width = "80%"
+height = "70%"
+command = ["./bin/herdr-db", "self-update"]
+
+[[actions]]
+id = "toggle-tree"
+title = "Toggle database tree"
+description = "Show or hide the Herdr DB tree on the left of the current tab."
+contexts = ["workspace"]
+command = ["./bin/herdr-db", "toggle-tree"]
+
+[[actions]]
+id = "update"
+title = "Mettre à jour Herdr DB"
+description = "Install the latest stable release of Herdr DB."
+contexts = ["global"]
+command = ["./bin/herdr-db", "update"]

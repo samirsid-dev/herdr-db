@@ -1,0 +1,12 @@
+---
+source: crates/herdr-db/src/ui/grid.rs
+expression: terminal.backend()
+---
+" db_prod · production · lecture seule                       "
+"public.users  ~1 200 lignes  page 1 (keyset)                "
+"id   org_id   note                                          "
+"   1        7                                               "
+"   2        7 <null>                                        "
+"   3        7                                               "
+"                                                            "
+"id integer · PK · ligne 1/3 · 3 ms                    ? aide"

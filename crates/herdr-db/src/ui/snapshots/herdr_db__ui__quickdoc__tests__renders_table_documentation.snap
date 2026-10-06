@@ -1,0 +1,16 @@
+---
+source: crates/herdr-db/src/ui/quickdoc.rs
+expression: terminal.backend()
+---
+" local · local · lecture/écriture · Quick Documentation         "
+"users  table · public · local                                   "
+"Comptes utilisateurs                                            "
+"~42 lignes (estimation du catalogue)                            "
+"                                                                "
+"Colonnes                                                        "
+"  PK    id     bigint  NOT NULL                                 "
+"        email  text    — adresse de contact                     "
+"                                                                "
+"Clés                                                            "
+"  users_pkey  primary key (id)                                  "
+"                     y copier · e données · d DDL · Échap fermer"
