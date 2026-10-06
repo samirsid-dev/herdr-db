@@ -3,11 +3,9 @@
 name: check-version
 
 on:
+  # cargo-dist calls plan jobs without inputs; the caller's github context
+  # (tag ref) is inherited.
   workflow_call:
-    inputs:
-      plan:
-        required: true
-        type: string
 
 jobs:
   check:
