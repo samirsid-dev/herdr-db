@@ -16,7 +16,7 @@ herdr plugin install samirsid-dev/herdr-db
 
 ### Afficher l'arbre
 
-L'action **Toggle database tree** affiche ou masque l'arbre dans l'onglet courant. Pour la lier à une touche, ajoutez dans `~/.config/herdr/config.toml` :
+L'action **Toggle database tree** affiche ou masque l'arbre dans l'onglet courant. L'arbre s'ouvre à gauche du pane focalisé, sur environ un quart de la largeur : Herdr ne permet pas d'insérer un pane à la racine d'un onglet. Pour lier l'action à une touche, ajoutez dans `~/.config/herdr/config.toml` :
 
 ```toml
 [[keys.command]]

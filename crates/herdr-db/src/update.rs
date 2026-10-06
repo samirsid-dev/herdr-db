@@ -39,6 +39,7 @@ pub async fn newer_release(state_dir: &Path) -> Option<String> {
         if let Ok(text) = serde_json::to_string(&record) {
             let _ = herdr_db_store::create_private_dir(state_dir);
             let _ = std::fs::write(&path, text);
+            let _ = herdr_db_store::set_private(&path);
         }
         latest
     };

@@ -116,7 +116,10 @@ impl QuickDoc {
             lines.push(Line::styled(comment.clone(), Style::new().add_modifier(Modifier::ITALIC)));
         }
         if let Some(estimate) = self.estimate.filter(|e| *e >= 0) {
-            lines.push(Line::styled(format!("~{estimate} lignes (estimation du catalogue)"), theme::dim()));
+            lines.push(Line::styled(
+                format!("~{} lignes (estimation du catalogue)", super::grid::group_thousands(estimate as u64)),
+                theme::dim(),
+            ));
         }
         lines.push(Line::raw(""));
 

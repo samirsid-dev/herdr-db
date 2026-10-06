@@ -319,7 +319,10 @@ impl IntrospectionLock {
     fn lock_file(state_dir: &Path, source: &str) -> Result<File> {
         let dir = cache_dir(state_dir);
         create_private_dir(&dir)?;
-        Ok(OpenOptions::new().create(true).truncate(false).write(true).open(dir.join(format!("{source}.lock")))?)
+        let path = dir.join(format!("{source}.lock"));
+        let file = OpenOptions::new().create(true).truncate(false).write(true).open(&path)?;
+        set_private(&path)?;
+        Ok(file)
     }
 
     /// `None` when another process is introspecting this source.
@@ -354,6 +357,20 @@ pub fn create_private_dir(dir: &Path) -> std::io::Result<()> {
     #[cfg(not(unix))]
     {
         fs::create_dir_all(dir)
+    }
+}
+
+/// Restricts an existing directory to the user (0700).
+pub fn make_private_dir(dir: &Path) -> std::io::Result<()> {
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        fs::set_permissions(dir, fs::Permissions::from_mode(0o700))
+    }
+    #[cfg(not(unix))]
+    {
+        let _ = dir;
+        Ok(())
     }
 }
 

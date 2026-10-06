@@ -53,14 +53,37 @@ pub fn banner(frame: &mut Frame, area: Rect, source: &SourceConfig, context: &st
         text.push_str(context);
     }
     let link_label = link.label();
-    let right = if link_label.is_empty() { String::new() } else { format!("{link_label} ") };
+    let right = if link_label.is_empty() { String::new() } else { format!(" {link_label} ") };
     let width = area.width as usize;
+    // Narrow pane: the context gives way, never the source and environment.
+    let room = width.saturating_sub(right.width());
+    if text.width() > room {
+        text = fit_width(&text, room);
+    }
     let used = text.width() + right.width();
     if used < width {
         text.push_str(&" ".repeat(width - used));
     }
-    text.push_str(&right);
+    if text.width() + right.width() <= width {
+        text.push_str(&right);
+    }
     frame.render_widget(Paragraph::new(Line::styled(text, style)), area);
+}
+
+/// Cuts `text` to `width` columns, ending with an ellipsis when cut.
+pub fn fit_width(text: &str, width: usize) -> String {
+    if text.width() <= width {
+        return text.to_string();
+    }
+    let mut out = String::new();
+    for c in text.chars() {
+        if out.width() + unicode_width::UnicodeWidthChar::width(c).unwrap_or(0) + 1 > width {
+            break;
+        }
+        out.push(c);
+    }
+    out.push('…');
+    out
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
@@ -318,6 +341,26 @@ mod tests {
         input.handle(&KeyEvent::new(KeyCode::Char('w'), KeyModifiers::CONTROL));
         assert_eq!(input.text, "o");
         assert!(matches!(input.handle(&KeyEvent::new(KeyCode::Enter, KeyModifiers::NONE)), InputOutcome::Submit));
+    }
+
+    #[test]
+    fn narrow_banner_keeps_the_link_state() {
+        use ratatui::Terminal;
+        use ratatui::backend::TestBackend;
+        let source = herdr_db_core::config::load(
+            Some((
+                std::path::Path::new("t.toml"),
+                "[[sources]]\nid = \"local\"\nengine = \"postgres\"\ndatabase = \"d\"\n",
+            )),
+            None,
+        )
+        .unwrap()
+        .sources
+        .remove(0);
+        let mut terminal = Terminal::new(TestBackend::new(48, 1)).unwrap();
+        terminal.draw(|f| banner(f, f.area(), &source, "console · herdr_fixture", false, &Link::Connected)).unwrap();
+        let line: String = terminal.backend().buffer().content().iter().map(|c| c.symbol()).collect();
+        assert_eq!(line, " local · local · lecture/écriture · c… connecté ");
     }
 
     #[test]

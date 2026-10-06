@@ -135,6 +135,9 @@ fn main() -> ExitCode {
 
 async fn run(cli: Cli) -> Result<()> {
     let env = Arc::new(HerdrEnv::detect());
+    // Herdr creates the state dir world-readable: keep it to the user.
+    let _ = herdr_db_store::create_private_dir(&env.state_dir);
+    let _ = herdr_db_store::make_private_dir(&env.state_dir);
     logging::init(&env.logs_dir());
     tracing::info!(version = update::CURRENT_VERSION, pane = ?env.pane_id, "start");
     match cli.command {
@@ -225,6 +228,7 @@ fn register_tree(env: &HerdrEnv) -> Option<std::path::PathBuf> {
     herdr_db_store::create_private_dir(&dir).ok()?;
     let path = dir.join(paths::sanitize(pane));
     std::fs::write(&path, format!("{pane}\n{}", std::process::id())).ok()?;
+    herdr_db_store::set_private(&path).ok()?;
     Some(path)
 }
 
@@ -372,7 +376,6 @@ async fn toggle_tree(env: &Arc<HerdrEnv>) -> Result<()> {
     }
     let target =
         env.context.focused_pane_id.clone().or_else(|| panes.iter().find(|p| p.focused).map(|p| p.pane_id.clone()));
-    let single = panes.len() == 1;
     let mut open = OpenPane::new("tree", Placement::Split);
     open.target_pane = target.clone();
     open.direction = Some(Direction::Right);
@@ -383,15 +386,25 @@ async fn toggle_tree(env: &Arc<HerdrEnv>) -> Result<()> {
         open.env.insert(paths::ENV_TEAM_CONFIG.into(), team.display().to_string());
     }
     let tree = herdr.open_pane(&open).await?;
-    // The tree lives on the left: swap it with the pane it split.
+    // The tree lives on the left: swap it with the pane it split, then give
+    // its column a tree-like width (setting a ratio also resyncs sizes).
     if let (Some(tree), Some(target)) = (tree, target) {
         if let Err(e) = herdr.swap(&tree, &target).await {
             tracing::warn!(error = %e, "swap failed");
         }
-        if single && let Some(tab) = &tab {
-            let _ = herdr
-                .call("layout.set_split_ratio", serde_json::json!({ "tab_id": tab, "path": [], "ratio": 0.25 }))
-                .await;
+        match herdr.layout(&tree).await {
+            Ok(layout) => match layout.column_split(&tree) {
+                Some(split) => {
+                    let total = layout.area.map_or(split.rect.width, |a| a.width) as f64;
+                    let wanted = (total * 0.25).clamp(32.0, 44.0);
+                    let ratio = (wanted / split.rect.width as f64).clamp(0.15, 0.6);
+                    if let Err(e) = herdr.set_split_ratio(&tree, &split.path, ratio).await {
+                        tracing::warn!(error = %e, "tree width");
+                    }
+                }
+                None => herdr.resync_sizes(&tree).await,
+            },
+            Err(e) => tracing::warn!(error = %e, "layout"),
         }
     }
     Ok(())

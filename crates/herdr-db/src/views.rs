@@ -79,7 +79,12 @@ impl Opener {
                 (_, None) => open.direction = Some(Direction::Right),
             },
         }
-        self.herdr.open_pane(&open).await?;
+        let opened = self.herdr.open_pane(&open).await?;
+        if open.placement == Placement::Split
+            && let Some(pane) = opened
+        {
+            self.herdr.resync_sizes(&pane).await;
+        }
         Ok(())
     }
 }
